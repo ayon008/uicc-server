@@ -26,6 +26,7 @@ async function run() {
         const dataBase = client.db('uicc');
         const usersCollection = dataBase.collection('users');
         const visitor = dataBase.collection('visitor');
+        const subscribeEmail = dataBase.collection('email');
 
         app.post('/visitor', async (req, res) => {
             console.log('clicked');
@@ -59,6 +60,17 @@ async function run() {
             const users = await usersCollection.find().toArray();
             const userCount = users?.length;
             res.send({ userCount });
+        })
+
+
+        app.post('/email', async (req, res) => {
+            const email = req.body;
+            const findOne = await subscribeEmail.findOne({ email: { $eq: req.body.email } });
+            console.log(findOne, email, 'clicked');
+            if (!findOne) {
+                const result = await subscribeEmail.insertOne(email);
+                res.send(result);
+            }
         })
 
         // Send a ping to confirm a successful connection
